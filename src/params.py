@@ -12,7 +12,7 @@ Class viterbiParams(AbstractParams):
 		self.emit_dict = self.readjson(cfg.emit_name)
 
 	def get_states(self,py):
-		return self.py2hz_dict[py]
+		return self.py2hz_dict[py].keys()
 		
 	def start(self,py,hz):
 		# P(hz | py)
@@ -22,5 +22,6 @@ Class viterbiParams(AbstractParams):
 		return max(self.trans_dict[prev_s][cur_s],self.minprop)
 
 	def emit(self,py,hz):
+		# P(py | hz)
 		return max(self.emit_dict[hz][py],self.minprop)
 		

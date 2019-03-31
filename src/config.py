@@ -6,6 +6,7 @@ class Config:
 	fnames = ['2016-02','2016-04','2016-05','2016-06','2016-07','2016-08','2016-09','2016-10','2016-11']
 	pyaddr = 'pyList.json'
 	hzaddr = 'hzList.json'
+	
 
 	#hyper parameters
 	py_num = 413
