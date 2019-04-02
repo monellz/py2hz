@@ -1,9 +1,9 @@
 from viterbi import viterbi
-from params import viterbiParams
+from params import hmm1Params
 
 
 
-params = viterbiParams()
+params = hmm1Params()
 while True:
 	print("input:",end='')
 	text = input().strip().split(' ')

@@ -6,6 +6,9 @@ class Config:
 	fnames = ['2016-02','2016-04','2016-05','2016-06','2016-07','2016-08','2016-09','2016-10','2016-11']
 	pyaddr = 'pyList.json'
 	hzaddr = 'hzList.json'
+	trans_name = 'trans-prob.pickle'
+	emit_name = 'emit-prob.pickle'
+	py2hz_name = 'py2hz-prob.pickle'
 	
 
 	#hyper parameters
