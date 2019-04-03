@@ -31,3 +31,22 @@ class hmm1Params(AbstractParams):
 			return self.minprob
 		return max(self.emit_dict[hz][py],self.minprob)
 		
+class hmm2Params(hmm1Params):
+	def __init__(self):
+		hmm1Params.__init__(self)
+		self.trans_2_dict = self.readpickle("trans-2-p.pkl")
+	def trans2(self,s1,s2,s3):
+		print(s1,s2,s3)
+		if s1 not in self.trans_2_dict.keys() or s2 not in self.trans_2_dict[s1].keys() or s3 not in self.trans_2_dict[s1][s2].keys():
+			return self.minprob
+		return max(self.trans_2_dict[s1][s2][s3],self.minprob)
+	'''
+	def get_states(self,py):
+		return super().get_states(py)
+	def start(self,py,hz):
+		return super().start(py,hz)
+	def trans(self,prev_s,cur_s):
+		return super().trans(prev_s,cur_s)
+	def emit(self,py,hz):
+		return super().emit(py,hz)
+	'''
