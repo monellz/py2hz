@@ -20,7 +20,6 @@ def viterbi(params,obs):
 	
 	#run viterbi for t > 0
 	for t in range(1, len(obs)):
-		print("now obs:",obs[t])
 		V.append({})
 		prev_states = cur_states
 		cur_states = params.get_states(obs[t])
@@ -72,6 +71,7 @@ def viterbi2(params,obs):
 		for s in cur_states:
 			V[t][s] = {}
 			for prev_s in prev_states:
+				#(_prob,_preprev_s) = max([(V[t-1][prev_s][preprev_s][0] + math.log(params.trans2(preprev_s,prev_s,s)) + math.log(params.emit2(prev_s,s,obs[t])),preprev_s) for preprev_s in V[t-1][prev_s].keys()])
 				(_prob,_preprev_s) = max([(V[t-1][prev_s][preprev_s][0] + math.log(params.trans2(preprev_s,prev_s,s)) + math.log(params.emit(obs[t],s)),preprev_s) for preprev_s in V[t-1][prev_s].keys()])
 				V[t][s][prev_s] = (_prob,V[t-1][prev_s][_preprev_s][1] + s) 
 	
