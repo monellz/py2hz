@@ -2,25 +2,7 @@ import json
 import os
 import pickle
 
-
-class AbstractParams(object):
-	def readjson(self,fname):
-		dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-		with open(os.path.join(dir,'data',fname)) as f:
-			data = json.load(f)
-		return data
-	def readpickle(self,fname):
-		dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-		with open(os.path.join(dir,'data',fname),"rb") as f:
-			data = pickle.load(f)
-		return data
-		
-
-	def getParamsDict(self):
-		pass
-
-
-class AbstractFileProcessing(object):
+class AbstractFileWR(object):
 	def readpkl(self,fn):
 		with open(self.absaddr(fn),"rb") as f:
 			data = pickle.load(f)
@@ -41,6 +23,14 @@ class AbstractFileProcessing(object):
 	def absaddr(self,fn):
 		return os.path.join(self.pwd(),'data',fn)
 
+
+class AbstractParams(AbstractFileWR):
+
+	def getParamsDict(self):
+		pass
+
+
+class AbstractFileProcessing(AbstractFileWR):
 	def openfile(self,fname,rmode,wmode):
 		try:
 			f = open(fname,rmode)
@@ -53,3 +43,30 @@ class AbstractFileProcessing(object):
 	def process(self):
 		'''file processing'''
 		pass
+
+
+class AbstractSmooth(AbstractFileWR):
+	def __init__(self):
+		self.config = self.readjson("config.json")
+		self.c1 = None
+		self.c2 = None
+		self.c3 = None
+		self.py2hz_p = None
+	def setting(self,c1 = None,c2 = None,c3 = None,py2hz_p = None):
+		'''called by params'''
+		if self.c1 == None: self.c1 = c1
+		if self.c2 == None: self.c2 = c2
+		if self.c3 == None: self.c3 = c3
+		if self.py2hz_p == None: self.py2hz_p = py2hz_p	
+
+	def smooth2(self,s1,s2):
+		'''2 order smooth
+			P(s2|s1)
+		'''
+		pass
+	def smooth3(self,s1,s2,s3):
+		'''3 order smooth
+			P(s3|s1,s2)
+		'''
+		pass
+	
