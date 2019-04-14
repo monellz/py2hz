@@ -1,7 +1,9 @@
-from interface import AbstractFileProcessing
+from interface import AbstractFileProcessing, Trie
 import os
 import json
 import pickle
+import py
+from pypinyin import lazy_pinyin
 from tqdm import tqdm
 
 
@@ -145,3 +147,19 @@ class Officialfpcs(AbstractFileProcessing):
 		#self.trans_2()
 		#self.emit_2()
 		self.count(3)
+
+
+class Corpusfpcs(AbstractFileProcessing):
+	def __init__(self):
+		AbstractFileProcessing.__init__(self)
+		self.trie = Trie() 
+	def words(self):
+		objs = self.readpkl("words.pkl")
+		keys = list(objs.keys())
+		for k in keys:
+			py = lazy_pinyin(k)
+			self.trie.add(k,py)
+		self.writepkl(self.trie.root,"trie.pkl")
+	def process(self):
+		self.words()
+
