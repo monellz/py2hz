@@ -1,5 +1,6 @@
 import json
-from interface import AbstractParams
+import math
+from interface import AbstractParams,Trie
 
 
 class hmm1Params(AbstractParams):
@@ -67,3 +68,37 @@ class hmm2Params(hmm1Params):
 	def emit(self,py,hz):
 		return super().emit(py,hz)
 	'''
+
+class dagParams(AbstractParams):
+	def __init__(self):
+		print("model loading...")
+		self.c1 = self.readpkl("word-all-1-n.pkl")
+		self.c2 = self.readpkl("word-filter-alter-2-n.pkl")
+		self.py2hz_dict = self.readpkl("py2hz-p.pkl")
+		self.trie = Trie()
+		print("model loaded")
+	def search_prefix(self,py_list):
+		return self.trie.search(py_list)
+	def get_states(self,py):
+		return list(self.py2hz_dict[py].keys())
+	def trans(self,prev_w,next_w):
+		if prev_w == '':
+			#return 1 
+			if next_w not in self.c1.keys():
+				return math.pow(1e-200,1e-4)
+			else: return math.pow(max(1e-200,self.c1[next_w] / 271134122),1e-4)
+		if next_w == '':
+			#return 1
+			if prev_w not in self.c1.keys():
+				return math.pow(1e-200,1e-4)
+			else: return math.pow(max(1e-200,self.c1[prev_w] / 271134122),1e-4)
+
+		w2 = prev_w + next_w
+		if w2 not in self.c2.keys():
+			c2_num = 0
+		else: c2_num = self.c2[w2]
+		if next_w not in self.c1.keys():
+			c1_num = 0
+		else: c1_num = self.c1[next_w]
+		return max(1e-200, (1-1e-100) * c2_num / max(c1_num,1,c2_num) + (1e-100) * c1_num /355584657)
+		

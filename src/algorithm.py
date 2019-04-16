@@ -1,4 +1,6 @@
 import math
+from dag import DAG,Vertex,Vpool
+from interface import encode
 
 
 def viterbi(params,obs):
@@ -31,6 +33,57 @@ def viterbi(params,obs):
 	res = [V[-1][key] for key in V[-1].keys()]
 	return sorted(res, key = lambda c: c[0], reverse = True)
 
+		
+def _createDAG(params,pool,py_list,cur_v,end):
+	'''
+		True: cur_v is the end
+		False: not end
+	'''
+	if len(py_list) == 0: return True
+	res = params.search_prefix(py_list)
+	#print(res)
+	for length,hz_list in res.items():
+		for hz in hz_list:
+			code = encode(hz,py_list[length:])
+			v = pool.findVertex(code)
+			if v == None:
+				v = pool.createVertex(hz,py_list[length:])
+				#connect
+				cur_v.addnext(v.id)
+				v.addprev(cur_v.id)
+				#need to expand
+				if _createDAG(params,pool,py_list[length:],v,end):
+					#connect to the end
+					v.addnext(end.id)
+					end.addprev(v.id)
+			else:
+				#connect
+				cur_v.addnext(v.id)
+				v.addprev(cur_v.id)
+				#not need to expand(existed!)
+	return False
+
+def createDAG(params,pool,py_list):
+	dag = DAG(pool)
+	_createDAG(params,pool,py_list,dag.root,dag.end)
+	return dag
+
+def dp4word2(params,obs):
+	'''2 word model'''
+	pool = Vpool()
+	DAG = createDAG(params,pool,obs)
+	#print("pool len:",len(pool.pool))
+	#print("pool keys:",pool.pool.keys())
+
+	res, prob = DAG.maxpath(params)
+
+	'''
+	print("show dist")
+	for k,v in pool.pool.items():
+		print(k,v.word,v.dist)
+	'''
+	return [(res,prob)]
+		
 			
 def viterbi2(params,obs):
 	''' viterbi for 2-order hmm'''
@@ -66,7 +119,7 @@ def viterbi2(params,obs):
 	for t in range(2, len(obs)):
 		#print("now obs:",obs[t])
 		V.append({})
-		prev_states = cur_states;
+		prev_states = cur_states
 		cur_states = params.get_states(obs[t])
 		for s in cur_states:
 			V[t][s] = {}
@@ -77,13 +130,12 @@ def viterbi2(params,obs):
 	
 	#sort the final result
 	res = []
-	for cur in V[-1].keys():
-		for prev in V[-1][cur].keys():
-			res.append(V[-1][cur][prev])
+	if len(obs) == 1:
+		for cur in V[-1].keys():
+			res.append(V[-1][cur]) 
+	else:
+		for cur in V[-1].keys():
+			for prev in V[-1][cur].keys():
+				res.append(V[-1][cur][prev])
 
 	return sorted(res, key = lambda c: c[0], reverse = True)
-
-
-def maxpath(obs,params):
-	''' based on graph '''
-	

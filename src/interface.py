@@ -1,6 +1,11 @@
 import json
 import os
 import pickle
+def encode(word,residue_py_list):
+	code = word
+	for py in residue_py_list:
+		code = code + py
+	return code
 
 class AbstractFileWR(object):
 	def readpkl(self,fn):
@@ -70,3 +75,57 @@ class AbstractSmooth(AbstractFileWR):
 		'''
 		pass
 	
+
+class Trie(AbstractFileWR):
+	'''prefix'''
+	def __init__(self,init = False):
+		self.end = '\n'
+		if init: self.root = {'py':'','hz':'','next':{},'end':''}
+		else:
+			self.root = self.readpkl("trie.pkl")
+	def add(self,hz,py):
+		'''add a string'''
+		node = self.root
+		for (h,p) in zip(hz,py):
+			code = encode(h,p)
+			if code not in node['next'].keys():
+				node['next'][code] = {'py':p,'hz':h,'next':{},'end':''}
+			node = node['next'][code]
+		node['end'] = self.end
+	def search(self,py):
+		res = self.__search(py,self.root,0,'')
+		return res
+	def cat(self,d1,d2):
+		'''d1:{len1:[],len2:[]}
+			d2:{len1:[],len2:[]}
+		'''
+		for k,v in d2.items():
+			if k not in d1.keys():
+				d1[k] = v
+			else:
+				d1[k] = d1[k] + v
+		return d1
+
+	def __search(self,py,node,index,prefix):
+		res = {}
+		#{len1:[hz,hz,..],len2:[],len3:[]}
+		if index >= len(py): return res
+		for k in node['next'].keys():
+			if py[index] == node['next'][k]['py']:
+				_res = self.__search(py,node['next'][k],index + 1,prefix + node['next'][k]['hz'])
+				res = self.cat(res,_res)
+
+				if node['next'][k]['end'] == self.end:
+					item = prefix + node['next'][k]['hz']
+					length = len(item)
+					if length not in res.keys():
+						res[length] = [item]
+					else:
+						res[length] = res[length] + [item]
+		return res
+
+
+
+
+		
+		

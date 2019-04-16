@@ -10,22 +10,22 @@ class Adddelta(AbstractSmooth):
             prob = \frac{count(s1s2) + delta}{count(s1) + delta * V}
         '''
         gram = s1 + s2
-        if gram not in self.c2.keys():
-            self.c2[gram] = 0
-        if s1 not in self.c1.keys():
-            self.c1[s1] = 0
-        prob = (self.c2[gram] + self.delta) / (self.c1[s1] + self.delta * self.config['1sum'])
+        if gram not in self.c2.keys(): gram_num = 0
+        else: gram_num = self.c2[gram]
+        if s1 not in self.c1.keys(): s1_num = 0
+        else: s1_num = self.c1[s1]
+        prob = (gram_num + self.delta) / (s1_num + self.delta * self.config['1sum'])
         return prob
     def smooth3(self,s1,s2,s3):
         '''
             prob(s3|s1s2) = \frac{count(s1s2s3) + delta}{count(s1s2} + delta * V-2order}
         '''
         gram = s1 + s2 + s3
-        if gram not in self.c3.keys():
-            self.c3[gram] = 0
-        if s1 + s2 not in self.c2.keys():
-            self.c2[s1 + s2] = 0
-        prob = (self.c3[gram] + self.delta) / (self.c2[s1 + s2] + self.delta * self.config['2sum'])
+        if gram not in self.c3.keys(): gram_num = 0
+        else: gram_num = self.c3[gram]
+        if s1 + s2 not in self.c2.keys(): s12_num = 0
+        else: s12_num = self.c2[s1 + s2]
+        prob = (gram_num + self.delta) / (s12_num + self.delta * self.config['2sum'])
         return prob
 
 
